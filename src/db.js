@@ -62,18 +62,16 @@ db.exec(`
 const countGallery = db.prepare('SELECT COUNT(*) as count FROM gallery').get();
 if (countGallery.count === 0) {
   const defaultImages = [
-    { title: 'Nurturing Hope & Safety', image_url: '/images/kwajaug-images/kwaja-hero.jpg', category: 'Shelter' },
-    { title: 'Joyful Moments at Kwaja', image_url: '/images/kwajaug-images/kwaja-about.jpg', category: 'Community' },
-    { title: 'Daily Meals & Care', image_url: '/images/kwajaug-images/kwaja-program-1.jpg', category: 'Nutrition' },
-    { title: 'Bright Smiles', image_url: '/images/kwajaug-images/kwaja-program-2.jpg', category: 'Children' },
-    { title: 'Warmth and Comfort', image_url: '/images/kwajaug-images/kwaja-children-1.jpg', category: 'Shelter' },
-    { title: 'Creative & Educational Activities', image_url: '/images/kwajaug-images/kwaja-children-2.jpg', category: 'Education' },
-    { title: 'Playtime & Belonging', image_url: '/images/kwajaug-images/kwaja-children-3.jpg', category: 'Community' },
-    { title: 'Healthcare & Wellness', image_url: '/images/kwajaug-images/kwaja-children-4.jpg', category: 'Healthcare' },
-    { title: 'Together as a Family', image_url: '/images/kwajaug-images/kwaja-children-5.jpg', category: 'Children' },
-    { title: 'Learning & Growing', image_url: '/images/kwajaug-images/kwaja-children-6.jpg', category: 'Education' },
-    { title: 'Smiles of Hope', image_url: '/images/kwajaug-images/kwaja-children-7.jpg', category: 'Children' },
-    { title: 'Creating a Brighter Future', image_url: '/images/kwajaug-images/kwaja-children-8.jpg', category: 'Community' },
+    { title: 'Joyful Smiles', image_url: '/images/kwajaug-images/kwaja-children-1.jpg', category: 'Children' },
+    { title: 'Daily Meals & Care', image_url: '/images/kwajaug-images/kwaja-children-2.jpg', category: 'Nutrition' },
+    { title: 'Nutritious Food for All', image_url: '/images/kwajaug-images/kwaja-children-4.jpg', category: 'Nutrition' },
+    { title: 'Sharing with Love', image_url: '/images/kwajaug-images/kwaja-children-5.jpg', category: 'Children' },
+    { title: 'Breakfast Together', image_url: '/images/kwajaug-images/kwaja-children-6.jpg', category: 'Nutrition' },
+    { title: 'Laughter & Healing', image_url: '/images/kwajaug-images/kwaja-children-3.jpg', category: 'Community' },
+    { title: 'Together as Family', image_url: '/images/kwajaug-images/kwaja-children-7.jpg', category: 'Community' },
+    { title: 'Community & Belonging', image_url: '/images/kwajaug-images/kwaja-program-1.jpg', category: 'Community' },
+    { title: 'Food Security Harvest', image_url: '/images/kwajaug-images/kwaja-children-8.jpg', category: 'Nutrition' },
+    { title: 'Director with Community Partner', image_url: '/images/kwajaug-images/kwaja-program-2.jpg', category: 'Community' },
   ];
   const insertGal = db.prepare('INSERT INTO gallery (title, image_url, category) VALUES (@title, @image_url, @category)');
   for (const img of defaultImages) {
@@ -118,7 +116,7 @@ if (countMembers.count === 0) {
     name: 'Tenywa Fatiik',
     role: 'Orphanage Director',
     bio: 'Director and visionary leader of Kwaja Uganda. Dedicated to rescuing, sheltering, and nurturing vulnerable children with safety, education, and love.',
-    photo_url: '/images/kwajaug-images/kwaja-about.jpg'
+    photo_url: '/images/kwajaug-images/kwaja-program-2.jpg'
   });
 }
 
