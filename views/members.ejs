@@ -1,0 +1,83 @@
+<%- include('partials/header') %>
+
+<section class="blog-hero" style="padding: 60px 0 40px; text-align: center;">
+  <div class="wrap">
+    <p class="eyebrow center">Kwaja Uganda Family</p>
+    <h1 class="center">Our Team &amp; Community Members</h1>
+    <p class="center blog-hero-lede" style="max-width: 60ch; margin: 12px auto 0;">Meet the dedicated team, caregivers, and leadership behind Kwaja Uganda — nurturing forgotten souls with safety, dignity, and love.</p>
+  </div>
+</section>
+
+<section class="members-section" style="padding: 40px 0 80px;">
+  <div class="wrap">
+    <!-- Director Feature Card -->
+    <div class="director-card" style="display: flex; flex-wrap: wrap; gap: 32px; background: var(--bg-card); border: 2px solid var(--saffron); border-radius: 20px; padding: 36px; margin-bottom: 60px; align-items: center; box-shadow: var(--shadow-lg);">
+      <div style="flex: 1; min-width: 260px; max-width: 360px;">
+        <div style="border-radius: 16px; overflow: hidden; position: relative;">
+          <img src="/images/kwajaug-images/kwaja-about.jpg" alt="Tenywa Fatiik - Orphanage Director" style="width: 100%; height: 380px; object-fit: cover;">
+          <span style="position: absolute; bottom: 12px; left: 12px; background: var(--saffron); color: #000; font-weight: 700; font-size: 0.8rem; padding: 4px 12px; border-radius: 20px; text-transform: uppercase; letter-spacing: 1px;">Orphanage Director</span>
+        </div>
+      </div>
+      <div style="flex: 1.5; min-width: 280px;">
+        <p class="eyebrow" style="color: var(--saffron); font-weight: 700;">Leadership &amp; Founder</p>
+        <h2 style="font-size: 2.2rem; margin-bottom: 8px;">Tenywa Fatiik</h2>
+        <p style="font-size: 1.1rem; color: var(--text-muted); font-weight: 600; margin-bottom: 20px;">Director &mdash; Kwaja Uganda Orphanage</p>
+        
+        <p style="line-height: 1.7; margin-bottom: 16px;">&ldquo;Love heals broken worlds. We nurture forgotten souls with safety.&rdquo;</p>
+        <p style="line-height: 1.7; color: var(--text-muted); margin-bottom: 24px;">Tenywa Fatiik serves as the Director of Kwaja Uganda, dedicating his life to creating a safe haven for vulnerable, orphaned, and abandoned children in Uganda. Under his leadership, Kwaja Uganda provides daily shelter, nutritious meals, healthcare, and schooling to ensure every child knows they are cherished and valued.</p>
+        
+        <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
+          <a href="https://www.youtube.com/@tenywafatiik" target="_blank" rel="noopener" class="btn btn-gold" style="padding: 10px 20px; font-size: 0.9rem;">
+            📺 YouTube Channel
+          </a>
+          <a href="https://www.tiktok.com/@tenywa_fatiik_hope?_r=1&_t=ZS-9A8oHG3AQAK" target="_blank" rel="noopener" class="btn btn-outline" style="padding: 10px 20px; font-size: 0.9rem;">
+            🎵 TikTok Profile
+          </a>
+          <a href="https://www.facebook.com/share/1EeZNPpzpE/?mibextid=wwXIfr" target="_blank" rel="noopener" class="btn btn-outline" style="padding: 10px 20px; font-size: 0.9rem;">
+            👍 Facebook Page
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Team & Caregivers Grid -->
+    <div style="margin-bottom: 24px; text-align: center;">
+      <h3 style="font-size: 1.8rem; margin-bottom: 8px;">Caregivers &amp; Team Members</h3>
+      <p style="color: var(--text-muted);">The compassionate hands ensuring round-the-clock care, nutrition, education, and security.</p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 24px;">
+      <% if (members && members.length > 0) { %>
+        <% members.forEach(member => { %>
+          <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 24px; text-align: center;">
+            <img src="<%= member.photo_url || '/images/kwajaug-images/kwaja-children-5.jpg' %>" alt="<%= member.name %>" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; margin: 0 auto 16px; border: 3px solid var(--saffron);">
+            <h4 style="font-size: 1.2rem; margin-bottom: 4px;"><%= member.name %></h4>
+            <p style="color: var(--saffron); font-size: 0.9rem; font-weight: 600; margin-bottom: 12px;"><%= member.role %></p>
+            <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;"><%= member.bio || 'Dedicated team member serving the children of Kwaja Uganda with love and devotion.' %></p>
+          </div>
+        <% }) %>
+      <% } %>
+
+      <!-- Placeholder slots ready for user to populate later -->
+      <div style="background: var(--bg-card); border: 1px dashed var(--border-color); border-radius: 16px; padding: 24px; text-align: center; opacity: 0.85;">
+        <div style="width: 80px; height: 80px; border-radius: 50%; background: var(--bg-main); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 2rem;">💛</div>
+        <h4 style="font-size: 1.1rem; margin-bottom: 4px;">Resident Caregiver</h4>
+        <p style="color: var(--text-muted); font-size: 0.88rem;">Home Care &amp; Nutrition Team</p>
+      </div>
+
+      <div style="background: var(--bg-card); border: 1px dashed var(--border-color); border-radius: 16px; padding: 24px; text-align: center; opacity: 0.85;">
+        <div style="width: 80px; height: 80px; border-radius: 50%; background: var(--bg-main); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 2rem;">📚</div>
+        <h4 style="font-size: 1.1rem; margin-bottom: 4px;">Education Lead</h4>
+        <p style="color: var(--text-muted); font-size: 0.88rem;">Tutoring &amp; Schooling Support</p>
+      </div>
+
+      <div style="background: var(--bg-card); border: 1px dashed var(--border-color); border-radius: 16px; padding: 24px; text-align: center; opacity: 0.85;">
+        <div style="width: 80px; height: 80px; border-radius: 50%; background: var(--bg-main); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 2rem;">🤝</div>
+        <h4 style="font-size: 1.1rem; margin-bottom: 4px;">Community Liaison</h4>
+        <p style="color: var(--text-muted); font-size: 0.88rem;">Outreach &amp; Volunteer Coordination</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<%- include('partials/footer') %>

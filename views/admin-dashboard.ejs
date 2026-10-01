@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title><%= pageTitle %></title>
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/style.css">
+<link rel="stylesheet" href="/blog.css">
+<style>
+  .admin-section-block {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: var(--space-6);
+    margin-bottom: var(--space-8);
+  }
+  .admin-grid-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: var(--space-4);
+    margin-top: var(--space-4);
+  }
+  .admin-media-card {
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background: var(--bg-main);
+    display: flex;
+    flex-direction: column;
+  }
+  .admin-media-card img {
+    width: 100%;
+    height: 140px;
+    object-fit: cover;
+  }
+  .admin-media-info {
+    padding: var(--space-3);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+</style>
+</head>
+<body class="admin-body">
+
+<header class="admin-topbar">
+  <div class="wrap admin-topbar-inner">
+    <span class="brand-word">Kwaja Uganda <em>Admin Panel</em></span>
+    <div class="admin-topbar-actions">
+      <a href="/" target="_blank" class="admin-link">View Public Site ↗</a>
+      <a href="/members" target="_blank" class="admin-link">View Team Page ↗</a>
+      <a href="/blog" target="_blank" class="admin-link">View Blog ↗</a>
+      <form method="POST" action="/admin/logout" class="admin-inline-form">
+        <button type="submit" class="admin-link admin-link-btn">Log Out</button>
+      </form>
+    </div>
+  </div>
+</header>
+
+<main class="wrap admin-main">
+  <!-- SECTION 1: BLOG POSTS -->
+  <div class="admin-section-block">
+    <div class="admin-main-head">
+      <div>
+        <h2>Blog Articles &amp; News</h2>
+        <p class="admin-subtitle">Write and manage stories from Kwaja Uganda.</p>
+      </div>
+      <a href="/admin/posts/new" class="btn btn-gold">+ New Article</a>
+    </div>
+
+    <% if (!posts || posts.length === 0) { %>
+      <p class="admin-empty">No blog posts yet. Click "+ New Article" to publish your first update.</p>
+    <% } else { %>
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Status</th>
+            <th>Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% posts.forEach(post => { %>
+            <tr>
+              <td>
+                <strong><%= post.title %></strong>
+                <% if (post.status === 'published') { %>
+                  <div class="admin-view-link"><a href="/blog/<%= post.slug %>" target="_blank">View Post ↗</a></div>
+                <% } %>
+              </td>
+              <td>
+                <span class="status-pill status-<%= post.status %>"><%= post.status %></span>
+              </td>
+              <td><%= new Date(post.updated_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) %></td>
+              <td class="admin-table-actions">
+                <a href="/admin/posts/<%= post.id %>/edit" class="admin-link">Edit</a>
+                <form method="POST" action="/admin/posts/<%= post.id %>/delete" class="admin-inline-form"
+                      onsubmit="return confirm('Delete this post? This cannot be undone.');">
+                  <button type="submit" class="admin-link admin-link-danger">Delete</button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    <% } %>
+  </div>
+
+  <!-- SECTION 2: MEMBERS & TEAM MANAGEMENT -->
+  <div class="admin-section-block" id="members-section">
+    <div class="admin-main-head">
+      <div>
+        <h2>Team &amp; Members Hatch</h2>
+        <p class="admin-subtitle">Add team members, caregivers, and board members to the public Team Page.</p>
+      </div>
+    </div>
+
+    <form method="POST" action="/admin/members" class="admin-form" style="display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; margin-bottom: 24px; background: rgba(0,0,0,0.03); padding: 16px; border-radius: 8px;">
+      <div style="flex: 1; min-width: 180px;">
+        <label for="mem-name">Full Name</label>
+        <input type="text" id="mem-name" name="name" placeholder="e.g. Jane Doe" required>
+      </div>
+      <div style="flex: 1; min-width: 180px;">
+        <label for="mem-role">Role / Position</label>
+        <input type="text" id="mem-role" name="role" placeholder="e.g. Lead Caregiver" required>
+      </div>
+      <div style="flex: 1.5; min-width: 200px;">
+        <label for="mem-bio">Bio / Description</label>
+        <input type="text" id="mem-bio" name="bio" placeholder="Short description...">
+      </div>
+      <div style="flex: 1; min-width: 180px;">
+        <label for="mem-photo">Photo URL (optional)</label>
+        <input type="text" id="mem-photo" name="photo_url" placeholder="/images/kwajaug-images/...">
+      </div>
+      <div>
+        <button type="submit" class="btn btn-gold">+ Add Member</button>
+      </div>
+    </form>
+
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Role</th>
+          <th>Bio</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (members && members.length > 0) { %>
+          <% members.forEach(mem => { %>
+            <tr>
+              <td><strong><%= mem.name %></strong></td>
+              <td><span class="badge"><%= mem.role %></span></td>
+              <td><%= mem.bio || '—' %></td>
+              <td>
+                <form method="POST" action="/admin/members/<%= mem.id %>/delete" class="admin-inline-form" onsubmit="return confirm('Remove team member?');">
+                  <button type="submit" class="admin-link admin-link-danger">Delete</button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr><td colspan="4" class="admin-empty">No extra members added yet.</td></tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- SECTION 3: PHOTO GALLERY UPLOADS -->
+  <div class="admin-section-block" id="gallery-section">
+    <div class="admin-main-head">
+      <div>
+        <h2>Photo Gallery Hatch</h2>
+        <p class="admin-subtitle">Upload photos or paste image URLs to populate the public gallery grid.</p>
+      </div>
+    </div>
+
+    <form method="POST" action="/admin/gallery" enctype="multipart/form-data" class="admin-form" style="display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; margin-bottom: 24px; background: rgba(0,0,0,0.03); padding: 16px; border-radius: 8px;">
+      <div style="flex: 1; min-width: 180px;">
+        <label for="gal-title">Photo Title / Caption</label>
+        <input type="text" id="gal-title" name="title" placeholder="e.g. Classroom Session" required>
+      </div>
+      <div style="width: 140px;">
+        <label for="gal-cat">Category</label>
+        <select id="gal-cat" name="category" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid var(--border-color);">
+          <option value="Shelter">Shelter</option>
+          <option value="Nutrition">Nutrition</option>
+          <option value="Education">Education</option>
+          <option value="Community">Community</option>
+          <option value="Children">Children</option>
+          <option value="Healthcare">Healthcare</option>
+        </select>
+      </div>
+      <div style="flex: 1; min-width: 200px;">
+        <label for="gal-file">Upload Image File</label>
+        <input type="file" id="gal-file" name="gallery_image" accept="image/*">
+      </div>
+      <div style="flex: 1; min-width: 200px;">
+        <label for="gal-url">OR Paste Image URL</label>
+        <input type="text" id="gal-url" name="image_url" placeholder="https://...">
+      </div>
+      <div>
+        <button type="submit" class="btn btn-gold">+ Add Photo</button>
+      </div>
+    </form>
+
+    <div class="admin-grid-cards">
+      <% if (gallery && gallery.length > 0) { %>
+        <% gallery.forEach(item => { %>
+          <div class="admin-media-card">
+            <img src="<%= item.image_url %>" alt="<%= item.title %>" loading="lazy">
+            <div class="admin-media-info">
+              <div>
+                <h4><%= item.title %></h4>
+                <p><span class="badge"><%= item.category %></span></p>
+              </div>
+              <form method="POST" action="/admin/gallery/<%= item.id %>/delete" style="margin-top: 8px;" onsubmit="return confirm('Remove photo from gallery?');">
+                <button type="submit" class="admin-link admin-link-danger" style="font-size: 0.8rem; background:none; border:none; padding:0; cursor:pointer;">Delete Photo</button>
+              </form>
+            </div>
+          </div>
+        <% }) %>
+      <% } else { %>
+        <p class="admin-empty">No gallery photos added yet.</p>
+      <% } %>
+    </div>
+  </div>
+
+  <!-- SECTION 4: TIKTOK SPOTLIGHT VIDEOS -->
+  <div class="admin-section-block" id="videos-section">
+    <div class="admin-main-head">
+      <div>
+        <h2>TikTok Spotlight Videos Hatch</h2>
+        <p class="admin-subtitle">Paste TikTok Video URLs to feature short videos in the public TikTok slideshow.</p>
+      </div>
+    </div>
+
+    <form method="POST" action="/admin/videos" class="admin-form" style="display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; margin-bottom: 24px; background: rgba(0,0,0,0.03); padding: 16px; border-radius: 8px;">
+      <div style="flex: 1; min-width: 200px;">
+        <label for="vid-title">Video Title</label>
+        <input type="text" id="vid-title" name="title" placeholder="e.g. Daily Meal Prep Video" required>
+      </div>
+      <div style="flex: 1.5; min-width: 260px;">
+        <label for="vid-url">TikTok Video URL or ID</label>
+        <input type="text" id="vid-url" name="tiktok_url" placeholder="https://www.tiktok.com/@tenywa_fatiik_hope" required>
+      </div>
+      <div style="flex: 1; min-width: 200px;">
+        <label for="vid-caption">Caption / Description</label>
+        <input type="text" id="vid-caption" name="caption" placeholder="Short description...">
+      </div>
+      <div>
+        <button type="submit" class="btn btn-gold">+ Add Video</button>
+      </div>
+    </form>
+
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>TikTok Link / ID</th>
+          <th>Caption</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (videos && videos.length > 0) { %>
+          <% videos.forEach(vid => { %>
+            <tr>
+              <td><strong><%= vid.title %></strong></td>
+              <td><code><%= vid.video_id %></code> &nbsp; <a href="<%= vid.tiktok_url %>" target="_blank" class="admin-link">Link ↗</a></td>
+              <td><%= vid.caption || '—' %></td>
+              <td>
+                <form method="POST" action="/admin/videos/<%= vid.id %>/delete" class="admin-inline-form" onsubmit="return confirm('Remove video?');">
+                  <button type="submit" class="admin-link admin-link-danger">Delete</button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr><td colspan="4" class="admin-empty">No videos added yet.</td></tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</main>
+
+</body>
+</html>

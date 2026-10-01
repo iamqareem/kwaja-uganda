@@ -1,0 +1,44 @@
+<%- include('partials/header') %>
+
+<section class="blog-hero">
+  <div class="wrap">
+    <p class="eyebrow center">Kwaja Uganda News &amp; Stories</p>
+    <h1 class="center">Stories of Hope &amp; Transformation</h1>
+    <p class="center blog-hero-lede">&ldquo;Love heals broken worlds. We nurture forgotten souls with safety.&rdquo; Read our latest updates from the field.</p>
+  </div>
+</section>
+
+<section class="blog-list-section">
+  <div class="wrap">
+    <% if (posts.length === 0) { %>
+      <p class="center blog-empty">No stories published yet — check back soon!</p>
+    <% } else { %>
+      <div class="blog-grid">
+        <% posts.forEach(post => { %>
+          <article class="blog-card">
+            <a href="/blog/<%= post.slug %>" class="blog-card-photo">
+              <% if (post.cover_image) { %>
+                <img src="<%= post.cover_image %>" alt="<%= post.title %>" loading="lazy">
+              <% } else { %>
+                <span class="blog-card-photo-fallback" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="currentColor"/>
+                  </svg>
+                </span>
+              <% } %>
+            </a>
+            <div class="blog-card-body">
+              <p class="blog-card-date"><%= new Date(post.published_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) %></p>
+              <h2><a href="/blog/<%= post.slug %>"><%= post.title %></a></h2>
+              <% if (post.subtitle) { %><p class="blog-card-subtitle"><%= post.subtitle %></p><% } %>
+              <p class="blog-card-excerpt"><%= post.excerpt %></p>
+              <a href="/blog/<%= post.slug %>" class="blog-read-more">Read full story &rarr;</a>
+            </div>
+          </article>
+        <% }) %>
+      </div>
+    <% } %>
+  </div>
+</section>
+
+<%- include('partials/footer') %>

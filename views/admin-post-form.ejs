@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title><%= pageTitle %></title>
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/style.css">
+<link rel="stylesheet" href="/blog.css">
+</head>
+<body class="admin-body">
+
+<header class="admin-topbar">
+  <div class="wrap admin-topbar-inner">
+    <span class="brand-word">Kwaja Uganda <em>Admin</em></span>
+    <div class="admin-topbar-actions">
+      <a href="/admin" class="admin-link">← Return to Dashboard</a>
+    </div>
+  </div>
+</header>
+
+<main class="wrap admin-main admin-main-narrow">
+  <h1><%= post && post.id ? 'Edit Article' : 'New Article' %></h1>
+
+  <% if (error) { %>
+    <p class="admin-error"><%= error %></p>
+  <% } %>
+
+  <form method="POST"
+        action="<%= post && post.id ? `/admin/posts/${post.id}` : '/admin/posts' %>"
+        enctype="multipart/form-data" class="admin-form admin-post-form">
+
+    <label for="title">Article Title</label>
+    <input type="text" id="title" name="title" required
+           value="<%= post && post.title ? post.title : '' %>" placeholder="e.g. Love Heals Broken Worlds: Community Day">
+
+    <label for="subtitle">Subtitle / Summary <span class="admin-optional">(optional)</span></label>
+    <input type="text" id="subtitle" name="subtitle"
+           value="<%= post && post.subtitle ? post.subtitle : '' %>" placeholder="A brief sentence describing the story">
+
+    <label for="cover_image">Cover Image <span class="admin-optional">(JPG, PNG, or WEBP, up to 10MB)</span></label>
+    <% if (post && post.cover_image) { %>
+      <div class="admin-current-image">
+        <img src="<%= post.cover_image %>" alt="Current cover image">
+        <span>Current image — upload a new file below to replace it</span>
+      </div>
+    <% } %>
+    <input type="file" id="cover_image" name="cover_image" accept="image/jpeg,image/png,image/webp,image/gif">
+
+    <label for="body_markdown">
+      Article Body <span class="admin-optional">(Supports Markdown: **bold**, *italic*, ### headings, - bullet lists, blank line = new paragraph)</span>
+    </label>
+    <textarea id="body_markdown" name="body_markdown" rows="16" required
+              placeholder="Write the full story here..."><%= post && post.body_markdown ? post.body_markdown : '' %></textarea>
+
+    <div class="admin-form-actions">
+      <label class="admin-status-toggle">
+        <input type="checkbox" name="status" value="published"
+               <%= post && post.status === 'published' ? 'checked' : '' %>>
+        Published <span class="admin-optional">(unchecked = saved as draft)</span>
+      </label>
+      <button type="submit" class="btn btn-gold btn-lg">Save Article</button>
+    </div>
+  </form>
+</main>
+
+</body>
+</html>

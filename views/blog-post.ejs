@@ -1,0 +1,42 @@
+<% if (!post) { %>
+  <%- include('partials/header') %>
+  <section class="blog-post-section">
+    <div class="wrap center" style="padding: 80px 0;">
+      <h1>Story Not Found</h1>
+      <p>This story may have been moved or unpublished.</p>
+      <a href="/blog" class="btn btn-outline" style="margin-top: 20px;">Back to Stories</a>
+    </div>
+  </section>
+  <%- include('partials/footer') %>
+<% } else { %>
+  <%- include('partials/header') %>
+
+  <article class="blog-post-section">
+    <div class="wrap blog-post-wrap">
+      <p class="eyebrow"><a href="/blog">&larr; Back to Stories &amp; News</a></p>
+      <h1><%= post.title %></h1>
+      <% if (post.subtitle) { %><p class="blog-post-subtitle"><%= post.subtitle %></p><% } %>
+      <p class="blog-post-date">
+        Published on <%= new Date(post.published_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) %> &bull; Kwaja Uganda
+      </p>
+
+      <% if (post.cover_image) { %>
+        <div class="blog-post-cover">
+          <img src="<%= post.cover_image %>" alt="<%= post.title %>">
+        </div>
+      <% } %>
+
+      <div class="blog-post-body">
+        <%- bodyHtml %>
+      </div>
+
+      <div class="blog-post-cta-box" style="margin-top: 40px; padding: 32px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; text-align: center;">
+        <h3 style="margin-bottom: 8px;">Open your heart; your gentle kindness creates beautiful hope.</h3>
+        <p style="color: var(--text-muted); margin-bottom: 20px;">Every contribution directly supports food, shelter, education, and medical care for children at Kwaja Uganda.</p>
+        <a href="/#donate" class="btn btn-gold btn-lg">Support Our Mission &mdash; Donate Now</a>
+      </div>
+    </div>
+  </article>
+
+  <%- include('partials/footer') %>
+<% } %>
