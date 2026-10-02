@@ -32,8 +32,21 @@
 
   --radius: 16px;
   --radius-sm: 10px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
   --wrap: 1160px;
   --transition: 0.2s ease;
+
+  /* Aliases for admin + inline component styles (single contract) */
+  --bg-main: var(--ivory);
+  --bg-card: var(--surface);
+  --border-color: var(--line);
+  --text-muted: var(--ink-soft);
+  --shadow-lg: 0 32px 64px rgba(61,26,79,0.22);
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
 }
 
 /* ===== Dark Mode ===== */
@@ -59,6 +72,13 @@
   --ink:          #F0EBE3;
   --ink-soft:     #B8A8CC;
   --line:         rgba(255,255,255,0.12);
+
+  /* Aliases track dark surfaces */
+  --bg-main: #120B1E;
+  --bg-card: #1E1230;
+  --border-color: rgba(255,255,255,0.12);
+  --text-muted: #B8A8CC;
+  --shadow-lg: 0 32px 64px rgba(0,0,0,0.5);
 }
 
 /* ===== Base Reset ===== */
@@ -892,4 +912,114 @@ a:focus-visible, button:focus-visible {
   .spotlight-arrow { display: none; }
   .stats-inner { grid-template-columns: repeat(2,1fr); }
   .admin-gallery-grid { grid-template-columns: repeat(2,1fr); }
+}
+
+/* ===== Gallery section (homepage) + caption overlays ===== */
+.gallery-section { padding: 88px 0; background: var(--bg-alt); transition: background var(--transition); }
+.gallery-overlay {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  padding: 28px 14px 12px;
+  background: linear-gradient(to top, rgba(42,14,63,0.75), transparent);
+  color: #fff; font-size: 0.82rem; font-weight: 600; text-align: center;
+  opacity: 0; transition: opacity var(--transition);
+  pointer-events: none;
+}
+.gallery-item:hover .gallery-overlay,
+.gallery-item:focus-visible .gallery-overlay { opacity: 1; }
+@media (hover: none) {
+  .gallery-overlay { opacity: 1; padding: 18px 10px 10px; font-size: 0.72rem; }
+}
+
+/* ===== TikTok spotlight (homepage): one centered card ===== */
+.spotlight-section { padding: 88px 0; background: var(--bg); transition: background var(--transition); }
+.spotlight-container {
+  margin-top: 40px;
+  display: flex; justify-content: center;
+}
+.spotlight-section .spotlight-card { max-width: 340px; }
+.spotlight-embed {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 9/16;
+  max-height: 560px;
+  background: #000;
+  overflow: hidden;
+}
+.spotlight-embed iframe {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%; border: none; display: block;
+}
+.spotlight-meta {
+  display: flex; flex-direction: column; gap: 14px;
+  padding: 16px 20px 20px;
+}
+.spotlight-info { text-align: center; }
+.spotlight-badge {
+  display: inline-block;
+  background: var(--saffron-tint);
+  color: var(--saffron);
+  border: 1px solid var(--border);
+  font-size: 0.7rem; font-weight: 700;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 4px 12px; border-radius: 999px;
+  margin-bottom: 10px;
+}
+.spotlight-info h3 { margin: 0 0 4px; font-size: 1.05rem; }
+.spotlight-counter { margin: 0; font-size: 0.8rem; color: var(--text-soft); }
+.spotlight-nav {
+  display: flex; align-items: center; justify-content: center; gap: 16px;
+}
+.spotlight-btn {
+  width: 44px; height: 44px; border-radius: 999px;
+  background: var(--bg-alt);
+  border: 1.5px solid var(--border);
+  color: var(--text);
+  font-size: 1.1rem; line-height: 1;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; flex-shrink: 0;
+  transition: background var(--transition), border-color var(--transition), transform var(--transition);
+}
+.spotlight-btn:hover { background: var(--plum); border-color: var(--plum); color: var(--ivory); transform: translateY(-2px); }
+[data-theme="dark"] .spotlight-btn:hover { background: var(--saffron); border-color: var(--saffron); color: var(--plum-deep); }
+.spotlight-section .spotlight-dots { margin-top: 0; }
+.spotlight-section .spotlight-dot {
+  border: none; padding: 0;
+  width: 8px; height: 8px; border-radius: 999px;
+  background: var(--border); cursor: pointer;
+  transition: background var(--transition), transform var(--transition);
+}
+.spotlight-section .spotlight-dot.active { background: var(--saffron); transform: scale(1.4); }
+
+/* ===== Generic badge (admin + info pills) ===== */
+.badge {
+  display: inline-block;
+  background: var(--saffron-tint);
+  color: var(--plum);
+  border: 1px solid var(--border);
+  font-size: 0.75rem; font-weight: 700;
+  padding: 3px 12px; border-radius: 999px;
+  white-space: nowrap;
+}
+[data-theme="dark"] .badge { color: var(--saffron); }
+
+/* Theme toggle icon color for stroke-based glyphs */
+.theme-toggle { color: var(--plum); }
+[data-theme="dark"] .theme-toggle { color: var(--saffron); }
+.theme-toggle .icon-sun circle,
+.theme-toggle .icon-sun path { stroke: currentColor; }
+.theme-toggle .icon-moon path { stroke: currentColor; fill: none; }
+.theme-toggle .icon-moon { fill: none; }
+
+/* Director band + GoFundMe card honor the fluid wrap on small screens */
+.director-spotlight .wrap { max-width: var(--wrap); margin: 0 auto; padding: 0 24px; }
+
+@media (max-width: 640px) {
+  .gallery-section, .spotlight-section { padding: 64px 0; }
+  .spotlight-section .spotlight-card { max-width: min(100%, 340px); }
+  .spotlight-btn { width: 48px; height: 48px; }
+  .header-right { gap: 8px; }
+  .theme-toggle { width: 38px; height: 38px; }
+  .hero { padding: 48px 0 36px; }
+  .about, .services, .volunteer, .blog-preview, .donate { padding: 64px 0; }
+  .cta-band { padding: 48px 0; }
 }

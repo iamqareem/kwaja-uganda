@@ -238,7 +238,7 @@
     <div class="admin-main-head">
       <div>
         <h2>TikTok Spotlight Videos Hatch</h2>
-        <p class="admin-subtitle">Paste TikTok Video URLs to feature short videos in the public TikTok slideshow.</p>
+        <p class="admin-subtitle">Paste a TikTok video's Share &rarr; Copy link URL. It renders in the centered spotlight card on the homepage.</p>
       </div>
     </div>
 
@@ -248,8 +248,8 @@
         <input type="text" id="vid-title" name="title" placeholder="e.g. Daily Meal Prep Video" required>
       </div>
       <div style="flex: 1.5; min-width: 260px;">
-        <label for="vid-url">TikTok Video URL or ID</label>
-        <input type="text" id="vid-url" name="tiktok_url" placeholder="https://www.tiktok.com/@tenywa_fatiik_hope" required>
+        <label for="vid-url">TikTok Video Link (Share &rarr; Copy link)</label>
+        <input type="text" id="vid-url" name="tiktok_url" placeholder="https://www.tiktok.com/@kwajaug/video/..." required>
       </div>
       <div style="flex: 1; min-width: 200px;">
         <label for="vid-caption">Caption / Description</label>
@@ -273,7 +273,7 @@
         <% if (videos && videos.length > 0) { %>
           <% videos.forEach(vid => { %>
             <tr>
-              <td><strong><%= vid.title %></strong></td>
+              <td><strong><%= vid.title %></strong> <span class="badge"><%= vid.embed_url ? 'Embed ✓' : 'Link only' %></span></td>
               <td><code><%= vid.video_id %></code> &nbsp; <a href="<%= vid.tiktok_url %>" target="_blank" class="admin-link">Link ↗</a></td>
               <td><%= vid.caption || '—' %></td>
               <td>

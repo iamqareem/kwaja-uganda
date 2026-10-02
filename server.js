@@ -303,6 +303,22 @@ app.post('/admin/gallery/:id/delete', requireAuth, (req, res) => {
   res.redirect('/admin#gallery-section');
 });
 
+// Normalize any pasted TikTok link to its embeddable form.
+// Accepts watch URLs (/.../video/<id>), embed URLs, or a bare numeric ID.
+// Returns { videoId, embedUrl } — embedUrl is null when no ID is found
+// (e.g. profile or short links), in which case the card links out instead.
+function normalizeTiktok(rawUrl) {
+  const url = (rawUrl || '').trim();
+  const match = url.match(/(?:video|embed\/v2)\/(\d+)/);
+  if (match) {
+    return { videoId: match[1], embedUrl: `https://www.tiktok.com/embed/v2/${match[1]}` };
+  }
+  if (/^\d+$/.test(url)) {
+    return { videoId: url, embedUrl: `https://www.tiktok.com/embed/v2/${url}` };
+  }
+  return { videoId: url || Date.now().toString(), embedUrl: null };
+}
+
 // TikTok Spotlight Videos Management
 app.post('/admin/videos', requireAuth, (req, res) => {
   try {
@@ -314,21 +330,14 @@ app.post('/admin/videos', requireAuth, (req, res) => {
       return res.redirect('/admin#videos-section');
     }
 
-    let videoId = '';
-    const match = rawUrl.match(/\/video\/(\d+)/);
-    if (match && match[1]) {
-      videoId = match[1];
-    } else if (/^\d+$/.test(rawUrl)) {
-      videoId = rawUrl;
-    } else {
-      videoId = Date.now().toString();
-    }
+    const { videoId, embedUrl } = normalizeTiktok(rawUrl);
 
     db.addVideoItem({
       title,
       tiktok_url: rawUrl,
       video_id: videoId,
       caption,
+      embed_url: embedUrl,
     });
 
     res.redirect('/admin#videos-section');

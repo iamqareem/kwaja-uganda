@@ -58,6 +58,23 @@ db.exec(`
   );
 `);
 
+// Lightweight migration: older databases lack videos.embed_url.
+try {
+  const cols = db.prepare('PRAGMA table_info(videos)').all();
+  if (cols.length && !cols.some((c) => c.name === 'embed_url')) {
+    db.exec('ALTER TABLE videos ADD COLUMN embed_url TEXT');
+  }
+  // Backfill: numeric TikTok IDs saved before embed_url existed.
+  try {
+    db.exec(`UPDATE videos SET embed_url = 'https://www.tiktok.com/embed/v2/' || video_id
+             WHERE (embed_url IS NULL OR embed_url = '') AND video_id GLOB '[0-9]*'`);
+  } catch (e) {
+    console.error('videos.embed_url backfill failed:', e.message);
+  }
+} catch (e) {
+  console.error('videos.embed_url migration failed:', e.message);
+}
+
 // Seed default gallery images if empty
 const countGallery = db.prepare('SELECT COUNT(*) as count FROM gallery').get();
 if (countGallery.count === 0) {
@@ -172,7 +189,7 @@ const queries = {
 
   // Videos
   listVideos: db.prepare('SELECT * FROM videos ORDER BY id DESC'),
-  insertVideo: db.prepare('INSERT INTO videos (title, tiktok_url, video_id, caption) VALUES (@title, @tiktok_url, @video_id, @caption)'),
+  insertVideo: db.prepare('INSERT INTO videos (title, tiktok_url, video_id, caption, embed_url) VALUES (@title, @tiktok_url, @video_id, @caption, @embed_url)'),
   deleteVideo: db.prepare('DELETE FROM videos WHERE id = ?'),
 
   // Members
@@ -204,7 +221,7 @@ module.exports = {
 
   // Videos
   listVideos: () => queries.listVideos.all(),
-  addVideoItem: ({ title, tiktok_url, video_id, caption }) => queries.insertVideo.run({ title: title || 'Kwaja Video', tiktok_url, video_id, caption: caption || '' }),
+  addVideoItem: ({ title, tiktok_url, video_id, caption, embed_url }) => queries.insertVideo.run({ title: title || 'Kwaja Video', tiktok_url, video_id, caption: caption || '', embed_url: embed_url || null }),
   deleteVideoItem: (id) => queries.deleteVideo.run(id),
 
   // Members

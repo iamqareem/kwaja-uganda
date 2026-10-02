@@ -142,14 +142,11 @@
   }
 
   // =============================================
-  // 6. TIKTOK SPOTLIGHT SLIDESHOW
+  // 6. TIKTOK SPOTLIGHT — one centered card, embed URLs only
   // =============================================
   var spotlightVideos = [];
   var spotlightIndex  = 0;
-  var spotlightTimer  = null;
 
-  var spotlightStage     = document.getElementById('spotlight-stage');
-  var spotlightEmpty     = document.getElementById('spotlight-empty');
   var spotlightCard      = document.getElementById('spotlight-card');
   var spotlightEmbed     = document.getElementById('tiktok-embed-container');
   var spotlightTitle     = document.getElementById('spotlight-title');
@@ -158,13 +155,22 @@
   var spotlightPrev      = document.getElementById('spotlight-prev');
   var spotlightNext      = document.getElementById('spotlight-next');
 
-  function tiktokEmbedSrc(url, videoId) {
-    if (videoId && /^\d+$/.test(videoId)) {
-      return 'https://www.tiktok.com/embed/v2/' + videoId;
-    }
-    var match = (url || '').match(/video\/(\d+)/);
-    if (match) {
-      return 'https://www.tiktok.com/embed/v2/' + match[1];
+  function escapeHtml(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  // Server sends a normalized embed_url; fall back to parsing a watch URL.
+  function tiktokEmbedSrc(v) {
+    if (v.embed_url) return v.embed_url;
+    var url = v.tiktok_url || '';
+    var match = url.match(/(?:video|embed\/v2)\/(\d+)/);
+    if (match) return 'https://www.tiktok.com/embed/v2/' + match[1];
+    if (v.video_id && /^\d+$/.test(v.video_id)) {
+      return 'https://www.tiktok.com/embed/v2/' + v.video_id;
     }
     return null;
   }
@@ -176,85 +182,96 @@
 
     if (spotlightEmbed) {
       spotlightEmbed.innerHTML = '';
-      var embedSrc = tiktokEmbedSrc(v.tiktok_url, v.video_id);
+      var embedSrc = tiktokEmbedSrc(v);
       if (embedSrc) {
         var iframe = document.createElement('iframe');
         iframe.src = embedSrc;
-        iframe.allow = 'autoplay; clipboard-write; encrypted-media; picture-in-picture';
-        iframe.allowFullscreen = true;
+        iframe.setAttribute('loading', 'lazy');
+        iframe.setAttribute('allow', 'encrypted-media; picture-in-picture; fullscreen');
+        iframe.setAttribute('allowfullscreen', '');
+        iframe.setAttribute('scrolling', 'no');
         iframe.title = v.title || 'Kwaja Uganda TikTok video';
         spotlightEmbed.appendChild(iframe);
       } else {
-        spotlightEmbed.innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:#fff;padding:24px;text-align:center;">' +
-          '<p style="margin-bottom:12px;">' + (v.caption || v.title) + '</p>' +
-          '<a href="' + (v.tiktok_url || 'https://www.tiktok.com/@kwajaug') + '" target="_blank" rel="noopener" class="btn btn-gold" style="font-size:0.85rem;padding:8px 16px;">Watch on TikTok &rarr;</a>' +
+        var safeUrl = /^https?:\/\//.test(v.tiktok_url || '') ? v.tiktok_url : 'https://www.tiktok.com/@kwajaug';
+        spotlightEmbed.innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;min-height:420px;color:#fff;padding:24px;text-align:center;">' +
+          '<p style="margin-bottom:12px;">' + escapeHtml(v.caption || v.title || 'Kwaja Uganda') + '</p>' +
+          '<a href="' + escapeHtml(safeUrl) + '" target="_blank" rel="noopener" class="btn btn-gold" style="font-size:0.85rem;padding:8px 16px;">Watch on TikTok &rarr;</a>' +
           '</div>';
       }
     }
 
     if (spotlightTitle) spotlightTitle.textContent = v.title || 'Kwaja Uganda Video';
-    if (spotlightCount) spotlightCount.textContent = (index + 1) + ' of ' + spotlightVideos.length;
+    if (spotlightCount) spotlightCount.textContent = spotlightVideos.length > 1
+      ? ('Video ' + (index + 1) + ' of ' + spotlightVideos.length)
+      : 'Featured video';
 
     if (spotlightDots) {
       Array.from(spotlightDots.children).forEach(function (dot, i) {
         dot.classList.toggle('active', i === index);
+        dot.setAttribute('aria-current', i === index ? 'true' : 'false');
       });
     }
   }
 
   function goToSlide(index) {
-    spotlightIndex = (index + spotlightVideos.length) % spotlightVideos.length;
+    if (!spotlightVideos.length) return;
+    spotlightIndex = ((index % spotlightVideos.length) + spotlightVideos.length) % spotlightVideos.length;
     renderSpotlight(spotlightIndex);
-    resetTimer();
   }
 
-  function resetTimer() {
-    clearInterval(spotlightTimer);
-    if (spotlightVideos.length > 1) {
-      spotlightTimer = setInterval(function () { goToSlide(spotlightIndex + 1); }, 8000);
-    }
-  }
-
-  if (spotlightCard) {
-    spotlightCard.addEventListener('mouseenter', function () { clearInterval(spotlightTimer); });
-    spotlightCard.addEventListener('mouseleave', resetTimer);
-  }
   if (spotlightPrev) spotlightPrev.addEventListener('click', function () { goToSlide(spotlightIndex - 1); });
   if (spotlightNext) spotlightNext.addEventListener('click', function () { goToSlide(spotlightIndex + 1); });
+  document.addEventListener('keydown', function (e) {
+    if (!spotlightVideos.length) return;
+    if (e.key === 'ArrowLeft' && document.activeElement &&
+        spotlightCard && spotlightCard.contains(document.activeElement)) goToSlide(spotlightIndex - 1);
+    if (e.key === 'ArrowRight' && document.activeElement &&
+        spotlightCard && spotlightCard.contains(document.activeElement)) goToSlide(spotlightIndex + 1);
+  });
 
-  if (spotlightStage) {
+  // Touch swipe on the card
+  if (spotlightCard) {
+    var touchX = null;
+    spotlightCard.addEventListener('touchstart', function (e) {
+      touchX = e.changedTouches[0].clientX;
+    }, { passive: true });
+    spotlightCard.addEventListener('touchend', function (e) {
+      if (touchX == null) return;
+      var dx = e.changedTouches[0].clientX - touchX;
+      touchX = null;
+      if (Math.abs(dx) < 40) return;
+      goToSlide(spotlightIndex + (dx < 0 ? 1 : -1));
+    }, { passive: true });
+  }
+
+  if (spotlightCard && spotlightEmbed) {
     fetch('/api/videos')
       .then(function (r) { return r.json(); })
       .then(function (videos) {
-        if (!videos || videos.length === 0) {
-          if (spotlightEmpty) spotlightEmpty.style.display = '';
-          return;
-        }
+        if (!videos || videos.length === 0) return; // keep static fallback
         spotlightVideos = videos;
-        spotlightStage.style.display = 'flex';
 
         if (spotlightDots) {
           spotlightDots.innerHTML = '';
           videos.forEach(function (_, i) {
             var dot = document.createElement('button');
+            dot.type = 'button';
             dot.className = 'spotlight-dot' + (i === 0 ? ' active' : '');
             dot.setAttribute('aria-label', 'Go to video ' + (i + 1));
             dot.addEventListener('click', function () { goToSlide(i); });
             spotlightDots.appendChild(dot);
           });
+          spotlightDots.style.display = videos.length > 1 ? '' : 'none';
         }
 
-        if (videos.length <= 1) {
-          if (spotlightPrev) spotlightPrev.style.display = 'none';
-          if (spotlightNext) spotlightNext.style.display = 'none';
-        }
+        var showNav = videos.length > 1;
+        if (spotlightPrev) spotlightPrev.style.display = showNav ? '' : 'none';
+        if (spotlightNext) spotlightNext.style.display = showNav ? '' : 'none';
 
         renderSpotlight(0);
-        resetTimer();
       })
-      .catch(function () {
-        if (spotlightEmpty) spotlightEmpty.style.display = '';
-      });
+      .catch(function () { /* keep static fallback content */ });
   }
 
   // =============================================
