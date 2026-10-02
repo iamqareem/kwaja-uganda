@@ -1,13 +1,13 @@
-# Deploying to your VPS
+# Deploying kwajaug.org to your VPS
 
-Everything needed to take this from "runs on my machine" to a live site with
-working donations. Roughly in order.
+Everything needed to take this from "runs on my machine" to the live site
+at `https://kwajaug.org`. Roughly in order.
 
 ## 1. Server prerequisites
 
 - A VPS with a public IP (any provider is fine)
-- A domain name, with an **A record pointing at that IP**
-  (e.g. `enrichhopefoundation.org` → `your.vps.ip.address`)
+- The domain `kwajaug.org`, with **A records pointing at that IP**
+  (apex `kwajaug.org` → `your.vps.ip.address`, plus `www` if you want it)
 - Node.js 18+ installed (`node --version` to check)
 - `git` (or another way to get the code onto the server)
 - PM2 installed globally: `npm install -g pm2`
@@ -15,34 +15,30 @@ working donations. Roughly in order.
   port; nginx sits in front of it and handles HTTPS
 - `certbot` for a free TLS certificate (Let's Encrypt)
 
-## 2. Why HTTPS is not optional here
+## 2. Why HTTPS matters here
 
-Pesapal's callback and IPN URLs **must be publicly reachable over HTTPS**.
-`PUBLIC_BASE_URL` in `.env` has to be your real `https://` domain — Pesapal
-will not call back to `http://` or to an IP address, and it can't reach
-`localhost` at all. So the order here matters: get the domain and TLS
-working *before* filling in real Pesapal credentials, otherwise donations
-will silently fail to complete.
+The admin login session cookie should be HTTPS-only in production (set
+`secure: true` in the cookie-session config in `server.js` once TLS is
+live), and browsers will warn visitors on plain HTTP. So get the domain
+and TLS working as part of going live.
 
 ## 3. Get the code onto the server
 
 ```bash
-git clone <your-repo-url> enrich-hope
-cd enrich-hope
+git clone https://github.com/iamqareem/kwaja-uganda.git kwaja-uganda
+cd kwaja-uganda
 npm install
 cp .env.example .env
 ```
 
 Fill in `.env` (see the main README for how to generate `SESSION_SECRET`
-and `ADMIN_PASSWORD_HASH`). Set:
+and `ADMIN_PASSWORD_HASH`). Use the real admin email:
 
 ```
-PUBLIC_BASE_URL=https://yourdomain.org
+ADMIN_USERNAME=support@kwajaug.org
 ```
 
-Leave the `PESAPAL_*` values blank for now if you don't have merchant
-credentials yet — the Donate button will show a "coming soon" message
-instead of erroring, so the rest of the site can go live immediately.
+No payment keys are needed — donations redirect to GoFundMe.
 
 ## 4. Start it with PM2
 
@@ -58,12 +54,12 @@ internet directly, nginx will proxy to it.
 
 ## 5. nginx reverse proxy
 
-Create `/etc/nginx/sites-available/enrichhopefoundation.org`:
+Create `/etc/nginx/sites-available/kwajaug.org`:
 
 ```nginx
 server {
     listen 80;
-    server_name yourdomain.org www.yourdomain.org;
+    server_name kwajaug.org www.kwajaug.org;
 
     location / {
         proxy_pass http://127.0.0.1:3000;
@@ -76,7 +72,7 @@ server {
 ```
 
 ```bash
-sudo ln -s /etc/nginx/sites-available/enrichhopefoundation.org /etc/nginx/sites-enabled/
+sudo ln -s /etc/nginx/sites-available/kwajaug.org /etc/nginx/sites-enabled/
 sudo nginx -t
 sudo systemctl reload nginx
 ```
@@ -84,11 +80,12 @@ sudo systemctl reload nginx
 ## 6. TLS certificate
 
 ```bash
-sudo certbot --nginx -d yourdomain.org -d www.yourdomain.org
+sudo certbot --nginx -d kwajaug.org -d www.kwajaug.org
 ```
 
 Certbot edits the nginx config to add the HTTPS block and sets up
-auto-renewal. Confirm `https://yourdomain.org` loads before moving on.
+auto-renewal. Confirm `https://kwajaug.org` loads, then set
+`secure: true` in the cookie-session config and restart.
 
 ## 7. Firewall
 
@@ -102,41 +99,28 @@ sudo ufw enable
 sudo ufw status
 ```
 
-## 8. Turn on real Pesapal payments
+## 8. First content on production
 
-Once `https://yourdomain.org` is live:
-
-1. Get merchant credentials from the Pesapal dashboard (Settings → API) —
-   start with the sandbox key/secret to test end-to-end, then switch to
-   live ones.
-2. Fill in `.env`:
-   ```
-   PESAPAL_ENV=sandbox        # then "live" once you've tested and are ready
-   PESAPAL_CONSUMER_KEY=...
-   PESAPAL_CONSUMER_SECRET=...
-   PUBLIC_BASE_URL=https://yourdomain.org
-   ```
-3. Restart: `npm run pm2:restart`
-4. Make a small real test donation end-to-end (sandbox first) and confirm
-   it shows up correctly — the app registers its IPN URL with Pesapal
-   automatically the first time it's needed, so there's no separate manual
-   registration step.
+The production database starts with seeded gallery/team content, but blog
+posts do **not** seed — log in at `https://kwajaug.org/admin` and
+re-create the welcome post, paste the real TikTok spotlight links, and
+review the gallery. (Or copy `data/blog.db` + `uploads/` from your local
+machine to migrate everything at once.)
 
 ## 9. Ongoing maintenance
 
-- **Backups:** `data/blog.db` is the entire database (posts + donation
-  records). Back it up regularly:
+- **Backups:** `data/blog.db` is the entire database (posts, gallery,
+  videos, members). Back it up regularly along with uploads:
   ```bash
   cp data/blog.db backups/blog-$(date +%F).db
+  rsync -a uploads/ backups/uploads-$(date +%F)/
   ```
-  Also back up `uploads/blog/` (blog cover images) — same idea, it's just
-  files on disk.
 - **Deploying updates:**
   ```bash
   git pull
   npm install   # only needed if package.json changed
   npm run pm2:restart
   ```
-- **Logs:** `npm run pm2:logs`, or `pm2 logs enrich-hope --lines 200`
+- **Logs:** `npm run pm2:logs`, or `pm2 logs kwajaug --lines 200`
 - **Renewing TLS:** certbot sets up auto-renewal via a systemd timer or cron
   job — check it's active with `sudo certbot renew --dry-run`.

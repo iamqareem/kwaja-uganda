@@ -96,34 +96,9 @@ if (countGallery.count === 0) {
   }
 }
 
-// Seed default TikTok spotlight videos for @tenywa_fatiik_hope if empty
-const countVideos = db.prepare('SELECT COUNT(*) as count FROM videos').get();
-if (countVideos.count === 0) {
-  const defaultVideos = [
-    {
-      title: 'Warm Welcome by Director Tenywa Fatiik',
-      tiktok_url: 'https://www.tiktok.com/@tenywa_fatiik_hope',
-      video_id: 'tenywa_fatiik_hope',
-      caption: 'Love heals broken worlds — every child deserves safety, dignity, and care.'
-    },
-    {
-      title: 'Daily Meal Prep & Joyful Smiles',
-      tiktok_url: 'https://www.tiktok.com/@tenywa_fatiik_hope',
-      video_id: 'tenywa_fatiik_hope_2',
-      caption: 'Nurturing forgotten souls with daily nutrition, clean water, and love.'
-    },
-    {
-      title: 'Learning & Classroom Sessions',
-      tiktok_url: 'https://www.tiktok.com/@tenywa_fatiik_hope',
-      video_id: 'tenywa_fatiik_hope_3',
-      caption: 'Empowering children through education and community support.'
-    }
-  ];
-  const insertVid = db.prepare('INSERT INTO videos (title, tiktok_url, video_id, caption) VALUES (@title, @tiktok_url, @video_id, @caption)');
-  for (const vid of defaultVideos) {
-    insertVid.run(vid);
-  }
-}
+// Spotlight videos are intentionally NOT seeded: the admin pastes real
+// TikTok Share-link URLs via /admin, which are normalized to embed URLs.
+// An empty table keeps the homepage's static fallback card until then.
 
 // Seed Director into members table if empty
 const countMembers = db.prepare('SELECT COUNT(*) as count FROM members').get();
